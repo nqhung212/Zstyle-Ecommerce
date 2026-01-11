@@ -1,502 +1,436 @@
-# ZStyle - E-Commerce Fashion Website
+# ZStyle - E-commerce with Testing Focus
 
-## Table of Contents
+An e-commerce platform for fashion products built with PHP and MySQL, with emphasis on comprehensive test coverage including 65 automated tests (unit, API, UI, and end-to-end).
+
+## Contents
 
 - [About](#about)
-- [Features](#features)
-- [Technologies](#technologies)
-- [Installation](#installation)
-- [Docker Setup](#docker-setup)
-- [Database Setup](#database-setup)
-- [Configuration](#configuration)
+- [Setup](#setup)
+- [Running Tests](#running-tests)
+- [Test Suite](#test-suite)
+- [Application Interface](#application-interface)
+- [Docker](#docker)
+- [CI/CD](#cicd)
 - [Project Structure](#project-structure)
-- [Usage](#usage)
-- [Admin Panel](#admin-panel)
-- [Interface Screens](#interface-screens-user-interface-overview)
-- [Contributing](#contributing)
-- [License](#license)
+- [Development](#development)
+- [Troubleshooting](#troubleshooting)
 
 ## About
 
-**ZStyle** is a comprehensive e-commerce platform specializing in fashion products with a unique custom design feature. The platform allows customers to browse, purchase ready-made fashion items, and create their own custom-designed apparel. Built with PHP and MySQL, ZStyle offers a full-featured shopping experience with user management, order tracking, and administrative tools.
+ZStyle is an e-commerce platform for fashion products (t-shirts, jackets, polos, etc.). The project demonstrates comprehensive testing practices including:
 
-## Features
+- 23 unit tests for business logic
+- 20 API tests for endpoints
+- 15 functional UI tests
+- 1 end-to-end test (complete shopping flow)
+- 5 smoke tests for deployment verification
 
-![](screenshot/architecture.png)
+The test suite covers authentication, product catalog, shopping cart, checkout, admin operations, and security validation.
 
-### Customer Features
+### Technology Stack
 
-- **Product Browsing & Search**
+**Backend**: PHP 8.1+, MySQL 8.0+, MVC Architecture  
+**Testing**: PHPUnit 10.5.58, Selenium WebDriver, Guzzle  
+**Infrastructure**: Docker, Docker Compose, GitHub Actions
 
-  - Browse products by category (Áo thun, Áo khoác, Áo sơ mi, Áo polo, etc.)
-  - Advanced filtering (price, color, gender, size)
-  - Search functionality with keyword matching
-  - Product sorting (A-Z, Z-A, price ascending/descending)
+## Setup
 
-- **Shopping Experience**
-
-  - Shopping cart management
-  - Wishlist functionality
-  - Product reviews and ratings (1-5 stars)
-  - Product detail views with multiple images and colors
-  - Size and color selection
-  - Real-time stock inventory tracking
-
-- **User Account Management**
-
-  - User registration and login
-  - Profile management
-  - Order history tracking
-  - Password recovery via email
-  - Account activation system
-
-- **Checkout & Payment**
-
-  - Multiple payment methods:
-    - Cash on delivery (COD)
-    - Credit/Debit card
-    - MoMo wallet
-  - Express shipping option
-  - Voucher/discount code system
-  - Email order confirmation
-
-### Admin Panel Features
-
-- **Dashboard**
-
-  - Overview statistics
-  - Revenue analytics by month
-  - Product view statistics by category
-  - Total revenue tracking
-  - Customer visit tracking
-
-- **Product Management**
-
-  - Add/Edit/Delete products
-  - Product categorization
-  - Price management (regular & sale prices)
-  - Product attributes (hot, featured, bestseller, trending)
-  - Multi-image upload for products
-  - Color and size variant management
-  - Stock inventory control
-
-- **Category Management**
-
-  - Create/Update/Delete categories
-  - Category display order
-  - Homepage category visibility
-
-- **Order Management**
-
-  - View all orders
-  - Order status tracking (Pending, Processing, Shipping, Completed, Cancelled)
-  - Order details view
-  - Order search functionality
-
-- **User Management**
-
-  - View customer accounts
-  - User role management (admin/customer)
-  - Account activation/deactivation
-  - User profile editing
-
-- **Comment Management**
-
-  - Monitor product reviews
-  - Moderate customer feedback
-
-## Technologies
-
-### Backend
-
-- **PHP 7.4+** - Server-side scripting
-- **MySQL 8.0+** - Database management
-- **PDO** - Database abstraction layer
-- **PHPMailer** - Email functionality
-
-### Frontend
-
-- **HTML5** - Structure
-- **CSS3** - Styling
-- **JavaScript/jQuery** - Client-side functionality
-- **Slick Carousel** - Image sliders
-- **Font Awesome** - Icons
-- **Ion Icons** - Additional icons
-
-### Architecture
-
-- **MVC Pattern** - Model-View-Controller architecture
-- **Session Management** - User authentication and cart management
-- **AJAX** - Asynchronous data loading
-
-## Installation
-
-### Prerequisites
-
-- PHP 7.4 or higher
-- MySQL 8.0 or higher
-- Apache/Nginx web server
-- Composer (optional)
-
-### Step 1: Clone the Repository
+### Using Docker (Recommended)
 
 ```bash
+# Clone and navigate to project
 git clone https://github.com/Plinh-Ctuyen-QHung-VHau/Zstyle.git
 cd Zstyle
+
+# Start application
+docker compose up -d
+
+# Start Selenium for UI tests (optional)
+docker compose -f docker-compose.selenium.yml up -d
+
+# Verify containers
+docker ps
 ```
 
-### Step 2: Configure Web Server
+Access the application at:
 
-Point your web server's document root to the project directory.
+- Main app: http://localhost:8080
+- Admin panel: http://localhost:8080/view/admin/
+- Database management: http://localhost:8081 (phpMyAdmin - root/root)
 
-For **XAMPP/WAMP**:
+### Manual Setup
 
-- Move the project to `htdocs` or `www` folder
-- Access via `http://localhost/Zstyle`
+1. Prerequisites: PHP 8.1+, MySQL 8.0+, Apache/Nginx, Composer
+2. Clone the repository
+3. Configure web server to point to project root
+4. Create database: `CREATE DATABASE zstyle CHARACTER SET utf8 COLLATE utf8_unicode_ci;`
+5. Import schema: `mysql -u root -p zstyle < sources/Zstyle.sql`
+6. Update credentials in `sources/model/connectdb.php`
+7. Install dependencies: `composer install`
 
-### Step 3: Set Permissions
+## Running Tests
+
+### All Tests
 
 ```bash
-# Linux/Mac
-chmod -R 755 upload/
-chmod -R 755 view/layout/assets/images/
-
-# Windows - Ensure write permissions on these folders
+# Requires Selenium running for UI tests
+docker exec -it zstyle_webserver vendor/bin/phpunit --testdox
 ```
 
-## Docker Setup
-
-For easy deployment using Docker containers, see the [Docker Setup Guide](DOCKER_SETUP.md).
-
-### Quick Start with Docker
+### Individual Suites
 
 ```bash
-# Start all services (web server, database, phpMyAdmin)
-docker-compose up -d
+# Unit tests (no browser needed)
+docker exec -it zstyle_webserver vendor/bin/phpunit --testsuite Unit --testdox
 
-# Access the application
-# Main app: http://localhost:8080
-# phpMyAdmin: http://localhost:8081
+# API tests (no browser needed)
+docker exec -it zstyle_webserver vendor/bin/phpunit --testsuite API --testdox
+
+# UI tests (requires Selenium)
+docker exec -it zstyle_webserver vendor/bin/phpunit --testsuite Functional-UI --testdox
+
+# End-to-end test (requires Selenium)
+docker exec -it zstyle_webserver vendor/bin/phpunit --testsuite E2E --testdox
+
+# Smoke tests (requires Selenium)
+docker exec -it zstyle_webserver vendor/bin/phpunit --testsuite Smoke --testdox
 ```
 
-The Docker setup includes:
-
-- **Web Server**: PHP 8.1 + Apache (Port 8080)
-- **Database**: MySQL 8.0 (Port 3307)
-- **phpMyAdmin**: Database management interface (Port 8081)
-- Automatic database initialization from `Zstyle.sql`
-- Proper file permissions for uploads
-
-For detailed Docker instructions, troubleshooting, and commands, see [DOCKER_SETUP.md](DOCKER_SETUP.md).
-
-## Database Setup
-
-### Step 1: Create Database
-
-1. Open phpMyAdmin or MySQL command line
-2. Create a new database named `zstyle`:
-
-```sql
-CREATE DATABASE zstyle CHARACTER SET utf8 COLLATE utf8_unicode_ci;
-```
-
-### Step 2: Import Database
-
-1. Import the `Zstyle.sql` file:
+### Fast Testing (No Selenium)
 
 ```bash
-mysql -u root -p zstyle < Zstyle.sql
+# Run only unit and API tests
+docker exec -it zstyle_webserver vendor/bin/phpunit --testsuite Unit --testsuite API --testdox
 ```
 
-Or use phpMyAdmin to import the SQL file.
+### Watch Tests Visually
 
-### Step 3: Database Configuration
+```bash
+# Start Selenium with VNC
+docker compose -f docker-compose.selenium.yml up -d
 
-Edit `model/connectdb.php` with your database credentials:
-
-```php
-function pdo_get_connection(){
-   $dburl = "mysql:host=localhost;dbname=zstyle;charset=utf8";
-   $username = 'root';
-   $password = 'your_password';
-   // ...
-}
+# Connect VNC viewer to localhost:7900 (password: secret)
+# Run tests in another terminal to watch execution
 ```
 
-## Configuration
+### Debug and Coverage
 
-### Email Configuration
+```bash
+# Verbose output
+docker exec -it zstyle_webserver vendor/bin/phpunit --testdox --verbose
 
-Edit `mailer.php` to configure email settings:
+# Generate coverage report
+docker exec -it zstyle_webserver vendor/bin/phpunit --coverage-html coverage
+# Open coverage/index.html in browser
 
-```php
-$mail->Host       = 'smtp.gmail.com';
-$mail->Username   = 'your-email@gmail.com';
-$mail->Password   = 'your-app-password';
+# Run single test
+docker exec -it zstyle_webserver vendor/bin/phpunit tests/Unit/CartCalculationTest.php --testdox
+
+# Selenium logs
+docker logs -f selenium_chrome
 ```
 
-**Note**: For Gmail, you need to generate an App Password from your Google Account settings.
+## Test Suite
 
-### Admin Account
+The test suite contains 65 tests organized into 5 categories:
 
-Default admin credentials (change after first login):
+### Unit Tests (23)
 
-- Check the `users` table for admin account
-- Admin role: `role = 1`
-- Customer role: `role = 0`
+Test individual functions and business logic without external dependencies.
+
+- Email, phone, password validation (8 tests)
+- Product filtering and utilities (7 tests)
+- Cart calculations and totals (8 tests)
+
+Run: `vendor/bin/phpunit --testsuite Unit --testdox`
+
+### API Tests (20)
+
+Test REST endpoints and HTTP responses.
+
+- Authentication endpoints (10 tests)
+- Product catalog endpoints (6 tests)
+- Shopping cart endpoints (4 tests)
+
+Run: `vendor/bin/phpunit --testsuite API --testdox`
+
+### Functional UI Tests (15)
+
+Test individual UI features using browser automation.
+
+- Login and registration forms (5 tests)
+- Product pages and filtering (5 tests)
+- Cart operations (5 tests)
+
+Requires Selenium. Run: `vendor/bin/phpunit --testsuite Functional-UI --testdox`
+
+### End-to-End Test (1)
+
+Test the complete shopping journey: browse products → select options → add to cart → checkout → place order.
+
+Requires Selenium. Run: `vendor/bin/phpunit --testsuite E2E --testdox`
+
+### Smoke Tests (5)
+
+Quick verification that critical paths work after deployment.
+
+- Homepage loads
+- Login page accessible
+- Product page displays
+- Cart functions
+- Checkout page loads
+
+Requires Selenium. Run: `vendor/bin/phpunit --testsuite Smoke --testdox`
+
+## Application Interface
+
+### Customer Pages
+
+| Page           | Screenshot                         |
+| -------------- | ---------------------------------- |
+| Home           | ![](screenshot/home.png)           |
+| Products       | ![](screenshot/product.png)        |
+| Product Detail | ![](screenshot/product-detail.png) |
+| Shopping Cart  | ![](screenshot/cart.png)           |
+| Checkout       | ![](screenshot/checkout.png)       |
+| Login          | ![](screenshot/login.png)          |
+| Register       | ![](screenshot/sign-up.png)        |
+| Account        | ![](screenshot/profile.png)        |
+| Order History  | ![](screenshot/history.png)        |
+| News           | ![](screenshot/news.png)           |
+
+### Admin Panel
+
+| Page      | Screenshot                          |
+| --------- | ----------------------------------- |
+| Dashboard | ![](screenshot/admin-dashboard.png) |
+| Products  | ![](screenshot/manager-product.png) |
+| Orders    | ![](screenshot/manager-order.png)   |
+| Users     | ![](screenshot/manager-user.png)    |
+| Vouchers  | ![](screenshot/manager-voucher.png) |
+| Comments  | ![](screenshot/manager-comment.png) |
+
+## Docker
+
+### Main Services
+
+`docker-compose.yml` provides:
+
+- **Web Server**: PHP 8.1 + Apache on port 8080
+- **Database**: MySQL 8.0 on port 3307
+- **Management**: phpMyAdmin on port 8081
+
+Automatically initializes database from `Zstyle.sql` and sets up proper file permissions.
+
+### Selenium Container
+
+`docker-compose.selenium.yml` provides:
+
+- **Browser Automation**: Selenium Chrome standalone server
+- **Remote Viewing**: VNC server on port 7900 (password: secret)
+
+Run only when needed for UI testing:
+
+```bash
+docker compose -f docker-compose.selenium.yml up -d    # Start
+docker compose -f docker-compose.selenium.yml down     # Stop and free ~3GB
+```
+
+### Container Commands
+
+```bash
+# View running containers
+docker ps
+
+# View container logs
+docker logs zstyle_webserver
+docker logs zstyle_database
+docker logs selenium_chrome
+
+# Stop containers
+docker compose down
+docker compose -f docker-compose.selenium.yml down
+
+# Remove all containers and clean up
+docker compose down -v
+docker system prune -a
+```
+
+## CI/CD
+
+Tests run automatically on GitHub Actions for:
+
+- Push to main or develop branch
+- Pull requests to main or develop
+
+Workflow runs: Unit tests → API tests → UI tests → E2E tests → Smoke tests → Coverage report
+
+View results on GitHub in the **Actions** tab. All tests must pass before merging PRs.
+
+## Troubleshooting
+
+**Selenium connection fails**  
+Ensure Selenium container is running: `docker compose -f docker-compose.selenium.yml up -d`
+
+**UI tests fail with "element not found"**  
+Check if the page loads correctly in VNC. Verify test URL parameters use `pg=` instead of `act=`.
+
+**Database connection error**  
+Verify MySQL is running and credentials in `model/connectdb.php` are correct.
+
+**Port already in use**  
+Stop conflicting containers or change ports in docker-compose.yml.
 
 ## Project Structure
 
 ```
-Zstyle/
-├── ajax/                      # AJAX handlers
-│   ├── giohangview.html      # Cart view template
-│   └── soluongsp.php         # Product quantity handler
-├── mailer/                    # Email templates
-│   ├── mailer.php
-│   ├── mailer1.php
-│   └── mailer2.php
-├── model/                     # Data layer (MVC)
-│   ├── connectdb.php         # Database connection
-│   ├── product.php           # Product functions
-│   ├── catalog.php           # Category functions
-│   ├── cart.php              # Shopping cart functions
-│   ├── user.php              # User management
-│   ├── donhang.php           # Order functions
-│   ├── design.php            # Custom design functions
-│   ├── voucher.php           # Voucher functions
-│   ├── comment.php           # Review functions
-│   ├── thongke.php           # Statistics functions
-│   └── ...
-├── PHPMailer-master/          # PHPMailer library
-├── upload/                    # Uploaded images
-├── view/                      # View layer (MVC)
-│   ├── header.php            # Site header
-│   ├── footer.php            # Site footer
-│   ├── home.php              # Homepage
-│   ├── product.php           # Product listing
-│   ├── detail.php            # Product detail
-│   ├── cart.php              # Shopping cart
-│   ├── checkout.php          # Checkout page
-│   ├── login.php             # Login page
-│   ├── register.php          # Registration page
-│   ├── account.php           # User account
-│   ├── news.php              # News/blog page
-│   ├── admin/                # Admin panel views
-│   │   ├── index.php         # Admin router
-│   │   ├── header.php        # Admin header
-│   │   ├── dashboard.php     # Admin dashboard
-│   │   ├── product.php       # Product management
-│   │   ├── catalog.php       # Category management
-│   │   ├── cart.php          # Order management
-│   │   ├── user.php          # User management
-│   │   ├── voucher.php       # Voucher management
-│   │   └── ...
-│   └── layout/               # Frontend assets
-│       └── assets/
-│           ├── css/          # Stylesheets
-│           ├── js/           # JavaScript files
-│           └── images/       # Static images
-├── index.php                  # Main application router
-├── mailer.php                 # Email sending script
-├── save_img.php              # Design image handler
-├── Zstyle.sql                # Database schema
-├── LICENSE                    # License file
-└── README.md                 # This file
+sources/
+  model/                    # Business logic layer
+    connectdb.php          # Database connection
+    user.php               # User management
+    product.php            # Product functions
+    cart.php               # Shopping cart
+    donhang.php            # Orders
+    ...
+  view/                    # Presentation layer
+    header.php
+    footer.php
+    home.php
+    product.php
+    cart.php
+    checkout.php
+    login.php
+    register.php
+    account.php
+    news.php
+    admin/                 # Admin panel
+  tests/                   # Test suite
+    Unit/                  # Unit tests (23)
+    API/                   # API tests (20)
+    UI/                    # UI tests (22)
+      LoginUITest.php
+      ProductUITest.php
+      CartUITest.php
+      E2EShoppingFlowTest.php
+      SmokeUITest.php
+  phpunit.xml              # PHPUnit configuration
+  docker-compose.yml       # Main services
+  docker-compose.selenium.yml  # Selenium service
+  Dockerfile               # PHP container image
+  Zstyle.sql              # Database schema
+  index.php               # Application router
+  mailer.php              # Email handler
+
+PROJECT_FULL_ANALYSIS.md  # Detailed testing analysis
+README.md                 # This file
 ```
 
-## Usage
+## Development
 
-### Customer Usage
+### Adding Features
 
-#### 1. Browse Products
+1. Create a feature branch: `git checkout -b feature/YourFeature`
+2. Write tests first (TDD approach recommended)
+3. Implement the feature
+4. Run all tests: `vendor/bin/phpunit --testdox`
+5. Ensure all 65 tests pass
+6. Commit and push
+7. Create a pull request
 
-- Navigate to `http://localhost/Zstyle`
-- Browse categories or use search
-- Filter by price, color, gender
+### Code Standards
 
-#### 2. Create Custom Design
+- Test all new functionality
+- Update relevant tests when modifying existing code
+- Follow MVC architecture pattern
+- Use PDO for database queries (prepared statements for security)
+- Test coverage should maintain or improve overall metrics
 
-- Click on "Thiết kế ngay" (Design Now)
-- Upload images or use design tools
-- Preview front and back of t-shirt
-- Add to cart
+## Testing Methodologies
 
-#### 3. Shopping Cart
+The test suite employs multiple approaches:
 
-- Add products to cart
-- Adjust quantities
-- Apply voucher codes
-- Proceed to checkout
-
-#### 4. Place Order
-
-- Fill in shipping information
-- Select payment method
-- Choose shipping speed
-- Confirm order
-- Receive email confirmation
-
-#### 5. Account Management
-
-- Register/Login to account
-- View order history
-- Update profile information
-- Track order status
-
-### Admin Usage
-
-#### 1. Login to Admin Panel
-
-- Navigate to `http://localhost/Zstyle/view/admin/`
-- Login with admin credentials
-
-#### 2. Manage Products
-
-- Add new products with images, colors, sizes
-- Set prices and discounts
-- Mark products as hot, featured, bestseller
-- Track inventory levels
-
-#### 3. Process Orders
-
-- View incoming orders
-- Update order status
-- View order details
-- Track payments
-
-#### 4. Manage Customers
-
-- View customer list
-- Edit customer information
-- Activate/deactivate accounts
-
-#### 5. Create Promotions
-
-- Create voucher codes
-- Set discount percentages
-- Define validity periods
-
-#### 6. View Analytics
-
-- Check revenue statistics
-- Monitor product views
-- Track customer engagement
-
-## Security Features
-
-- **Password Hashing** - User passwords are securely hashed
-- **SQL Injection Prevention** - PDO prepared statements
-- **Session Management** - Secure session handling
-- **Email Verification** - Account activation system
-- **Role-Based Access Control** - Admin/Customer separation
-- **XSS Prevention** - Input sanitization
-
-## Email Features
-
-The system sends automated emails for:
-
-- Order confirmations with order details
-- Account activation
-- Password recovery
-- Order status updates
+- **Black-box testing**: Validates functionality without examining implementation
+- **White-box testing**: Verifies internal logic and code paths
+- **Business logic testing**: Tests critical workflows end-to-end (registration → login → purchase)
+- **Security testing**: Validates SQL injection prevention, XSS prevention, unauthorized access control
+- **Integration testing**: Confirms modules work together (model → controller → view)
 
 ## Troubleshooting
 
-### Common Issues
+### Selenium Connection Issues
 
-**Issue**: Images not displaying
+```bash
+# Verify Selenium is running
+docker ps | grep selenium
 
-- **Solution**: Check file permissions on `upload/` folder
+# Start Selenium if not running
+docker compose -f docker-compose.selenium.yml up -d
 
-**Issue**: Email not sending
+# Check network connectivity
+docker network inspect zstyle_network
+```
 
-- **Solution**: Configure SMTP settings in `mailer.php` and enable "Less secure app access" or use App Password for Gmail
+### UI Test Failures
 
-**Issue**: Database connection error
+- Check page loads correctly in VNC (localhost:7900)
+- Verify test URL parameters use `pg=` instead of `act=`
+- Increase wait times if page loads slowly
+- Check Selenium logs: `docker logs -f selenium_chrome`
 
-- **Solution**: Verify database credentials in `model/connectdb.php`
+### Database Connection Error
 
-**Issue**: Session errors
+```bash
+# Verify MySQL is running
+docker ps | grep zstyle_database
 
-- **Solution**: Ensure PHP session is enabled and `session.save_path` is writable
+# Check credentials in sources/model/connectdb.php
+# Verify database imported: docker exec zstyle_database mysql -u root -p -e "USE zstyle; SHOW TABLES;"
+```
 
-## Interface Screens (User Interface Overview)
+### Port Already in Use
 
-This section outlines the primary user interface screens available in the application, corresponding to the visual assets located in the `screenshot/` directory. These screens serve as the basis for UI/UX validation and functional testing.
+Change ports in docker-compose.yml or stop existing containers:
 
-### Customer Interface
+```bash
+docker ps
+docker stop <container_name>
+```
 
-The customer-facing interface facilitates product discovery, account management, and transaction processing.
+### Disk Space (Selenium)
 
-### UI Screens
+```bash
+# Stop Selenium container (saves ~3GB)
+docker compose -f docker-compose.selenium.yml down
 
-| Screen          | Preview                                                      |
-| --------------- | ------------------------------------------------------------ |
-| Home Page       | ![](screenshot/home.png)<br/>![](screenshot/home2.png)       |
-| Product List    | ![](screenshot/product.png)<br/>![](screenshot/featured.png) |
-| Product Detail  | ![](screenshot/product-detail.png)                           |
-| Cart            | ![](screenshot/cart.png)                                     |
-| Checkout        | ![](screenshot/checkout.png)                                 |
-| Login           | ![](screenshot/login.png)                                    |
-| Sign Up         | ![](screenshot/sign-up.png)                                  |
-| Forgot Password | ![](screenshot/forgot-password.png)                          |
-| Profile         | ![](screenshot/profile.png)                                  |
-| Order History   | ![](screenshot/history.png)                                  |
-| News            | ![](screenshot/news.png)                                     |
-| About           | ![](screenshot/about.png)                                    |
-| Contact         | ![](screenshot/contact.png)                                  |
-| Policy          | ![](screenshot/policy.png)                                   |
-
-## Admin Interface
-
-The admin interface provides management capabilities for system data and business operations.
-
-### UI Screens
-
-| Screen                   | Preview                                                                      |
-| ------------------------ | ---------------------------------------------------------------------------- |
-| Admin Dashboard          | ![](screenshot/admin-dashboard.png)                                          |
-| Product Management       | ![](screenshot/manager-product.png)<br/>![](screenshot/manager-product2.png) |
-| Product Image Management | ![](screenshot/manager-img-product.png)                                      |
-| Order Management         | ![](screenshot/manager-order.png)<br/>![](screenshot/order.png)              |
-| User Management          | ![](screenshot/manager-user.png)                                             |
-| Voucher Management       | ![](screenshot/manager-voucher.png)                                          |
-| Comment Management       | ![](screenshot/manager-comment.png)                                          |
-| News Management          | ![](screenshot/manager-news.png)                                             |
+# Clean up unused Docker resources
+docker system prune -a
+```
 
 ## Contributing
 
-Contributions are welcome! Please follow these steps:
-
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Write tests for new functionality
+4. Ensure all 65 tests pass
+5. Commit with clear messages
+6. Push to your branch
+7. Open a pull request
 
-## Development Team
+All pull requests must pass CI/CD checks before merging.
 
-- **Plinh** - Developer
-- **Ctuyen** - Developer
-- **QHung** - Developer
-- **VHau** - Developer
+## Team
+
+- Phuc linh - Leader
+- Cong tuyen
+- Quoc Hung
+- Van Hau
+
+## Documentation
+
+- [PROJECT_FULL_ANALYSIS.md](PROJECT_FULL_ANALYSIS.md) - Comprehensive testing analysis, methodologies, and test case examples
+- [sources/README_TESTING.md](sources/README_TESTING.md) - Detailed automation testing guide and configuration
+- [sources/DOCKER_SETUP.md](sources/DOCKER_SETUP.md) - Docker configuration and troubleshooting
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- PHPMailer for email functionality
-- Font Awesome for icons
-- Slick Carousel for image sliders
-- All contributors and testers
-
----
-
-<div align="center">
-  Made with love by ZStyle Team
-  
-  **Happy Shopping!**
-</div>
+MIT License - see LICENSE file for details
